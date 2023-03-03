@@ -1,9 +1,37 @@
 import ir_datasets
 import sister
+from sister.word_embedders import Word2VecEmbedding
 import gensim
 from gensim.models import Word2Vec
 import nltk
 from nltk.corpus import stopwords
+
+import gensim.downloader as api
+# wv = api.load('word2vec-google-news-300')
+
+filename = 'archive/GoogleNews-vectors-negative300.bin'
+model = gensim.models.KeyedVectors.load_word2vec_format(filename, binary=True)
+
+
+print("model: ", model)
+
+for index, word in enumerate(model.index_to_key):
+    if index == 10:
+        break
+    print(f"word #{index}/{len(model.index_to_key)} is {word}")
+
+# how to get to the next suggestion in github copilot?
+print(model.index_to_key[0])
+
+"""
+# get the keys of wv
+print(wv.keys())
+
+print(type(wv))
+print(type(Word2VecEmbedding()))
+"""
+
+
 
 LINE = '\n'
 
@@ -11,6 +39,10 @@ class ExampleClass:
     def __init__(self):
         self.stopwords = nltk.corpus.stopwords.words('english')
         self.dataset = ir_datasets.load('cranfield')
+        self.embedder = sister.MeanEmbedding(lang="en", word_embedder=model)
+
+    def embed(self, sentence: str):
+        return self.embedder.embed(sentence)
 
     def get_stopwords(self): 
         return self.stopwords
@@ -86,10 +118,10 @@ print(dataset)
 print(obj.get_document(15))
 
 
-sentence_embedding = sister.MeanEmbedding(lang="en")
-sentence = "I am a dog."
-vector = sentence_embedding(sentence)
+vector = obj.embed(sentence="I am a dog.")
 print(vector)
+print(len(vector))
+print(vector.shape)
 
 
 
