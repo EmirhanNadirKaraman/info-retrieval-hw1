@@ -13,7 +13,7 @@ def main():
     dataset = ir_datasets.load("cranfield")
     nltk.download('stopwords')
     nltk.download('punkt')
-    location = "./cranfield_preprocessed/filtered_docs.json"
+    location = "./var/cranfield_preprocessed.json"
     
     preprocessed = preprocess(dataset)
     json_str = json.dumps(preprocessed, ensure_ascii=False, indent=3)
