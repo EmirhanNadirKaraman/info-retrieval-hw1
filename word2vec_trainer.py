@@ -5,11 +5,11 @@ from gensim.models import Word2Vec
 
 
 def main():
-    dataset = load_json("./var/cranfield_preprocessed.json")
+    dataset = load_json("./resources/cranfield_preprocessed.json")
     sentences = build_sentences(dataset)
     
     model = Word2Vec(sentences=sentences)
-    model.save("./var/word2vec.model")
+    model.save("./resources/word2vec.model")
 
 
 def build_sentences(dataset) -> list[list[str]]:
