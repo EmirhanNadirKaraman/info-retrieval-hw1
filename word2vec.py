@@ -31,7 +31,8 @@ print(type(wv))
 print(type(Word2VecEmbedding()))
 """
 
-
+model1 = gensim.models.Word2Vec(data, min_count = 1,size = 100, window = 5, sg=0) 
+print(model1)
 
 LINE = '\n'
 
