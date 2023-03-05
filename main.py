@@ -1,35 +1,31 @@
-import ir_datasets
-dataset = ir_datasets.load('cranfield')
+import sister
+import numpy as np
 
-# print the dataset contents 
-print(dataset)
+import gensim.downloader as api
 
-count = 0
-# print dataset docs
-for doc in dataset.docs_iter():
-    print(doc)
-    count += 1
-    if count >= 1: 
-        break
+from preprocessor import __filter
 
-print("\n")
-        
-# print dataset queries
-count = 0
-for query in dataset.queries_iter():
-    print(query)
-    count += 1
-    if count > 5: 
-        break
 
-print("\n")
+def wordtovec_embedding(model, sentence): 
+    filtered_sentence = __filter(sentence)
+    return np.array([model[w] for w in filtered_sentence if w in model])
 
-# print dataset qrels
-count = 0
-for qrel in dataset.qrels_iter():
-    print(qrel)
-    count += 1
-    if count > 5: 
-        break
 
-print("qrels done")
+def main(): 
+    # word2vec model pretrained with Google News dataset
+    wv_model = api.load('word2vec-google-news-300')
+
+    # pretrained bert model
+    bert_embedder = sister.BertEmbedding(lang='en')
+
+    sentence = "London is the capital of Great Britain"
+
+    w2v_result = wordtovec_embedding(model=wv_model, sentence=sentence)
+    bert_result = bert_embedder.embed(sentence)
+
+    print("word2vec result \n", w2v_result.shape, w2v_result)
+    print("bert result \n", bert_result.shape, bert_result)
+
+
+if __name__ == '__main__':
+    main()
