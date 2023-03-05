@@ -1,14 +1,20 @@
 import sister
 import numpy as np
-
 import gensim.downloader as api
 
 from preprocessor import __filter
 
 
-def wordtovec_embedding(model, sentence): 
+def wordtovec_embedding(model, sentence):
     filtered_sentence = __filter(sentence)
-    return np.array([model[w] for w in filtered_sentence if w in model])
+
+    # word2vec embedding of each word, combined in a 2d list
+    result = np.array([model[w] for w in filtered_sentence.split() if w in model])
+
+    # the mean value for each index in vectors
+    mean = np.mean(result, axis=0)
+
+    return mean.reshape(1, -1)
 
 
 def main(): 
@@ -19,9 +25,8 @@ def main():
     bert_embedder = sister.BertEmbedding(lang='en')
 
     sentence = "London is the capital of Great Britain"
-
     w2v_result = wordtovec_embedding(model=wv_model, sentence=sentence)
-    bert_result = bert_embedder.embed(sentence)
+    bert_result = bert_embedder.embed(sentences=[sentence])
 
     print("word2vec result \n", w2v_result.shape, w2v_result)
     print("bert result \n", bert_result.shape, bert_result)
