@@ -23,9 +23,10 @@ class BertEmbedder(Embedder):
 
     def get_embedding(self, sentence):
         filtered_sentence = self.preprocessor.filter(sentence)
-        return self.model.embed(sentences=[sentence])
+        return self.model.embed(sentences=[filtered_sentence])
     
     def get_multiple_embeddings(self, sentences: list[str]):
+        sentences = [self.preprocessor.filter(sentence) for sentence in sentences]
         return self.model.embed(sentences=sentences)
 
 

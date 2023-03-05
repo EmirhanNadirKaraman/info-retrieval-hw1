@@ -20,14 +20,20 @@ class Preprocessor:
         self.dataset = ir_datasets.load("cranfield")
         self.location = "./resources/cranfield_preprocessed.json"
 
-        nltk.download('stopwords')
-        nltk.download('punkt')
-    
-        preprocessed = self.preprocess(self.dataset)
-        json_str = json.dumps(preprocessed, ensure_ascii=False, indent=3)
+        try: 
+            with open(self.location, "r") as docs_file:
+                json_str = docs_file.read()
+                self.preprocessed = json.loads(json_str)
 
-        with open(self.location, "w") as docs_file:
-            docs_file.write(json_str)
+        except:
+            nltk.download('stopwords')
+            nltk.download('punkt')
+        
+            preprocessed = self.preprocess(self.dataset)
+            json_str = json.dumps(preprocessed, ensure_ascii=False, indent=3)
+
+            with open(self.location, "w") as docs_file:
+                docs_file.write(json_str)
 
 
     # Preprocesses title and text field in each document in the dataset and return
