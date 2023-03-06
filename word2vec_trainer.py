@@ -15,10 +15,8 @@ def main():
 def build_sentences(dataset) -> list[list[str]]:
     sentences = []
 
-    for doc in dataset["docs"]:
-        sentence = []
-        sentence += doc["title"].split()
-        sentence += doc["text"].split()
+    for doc in dataset["docs"].values():
+        sentence = doc["title"].split() + doc["text"].split()
         sentences.append(sentence)
 
     return sentences

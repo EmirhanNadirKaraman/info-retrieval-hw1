@@ -1,35 +1,27 @@
 import ir_datasets
+from ir_datasets.formats.trec import TrecQrel
 dataset = ir_datasets.load('cranfield')
 
-# print the dataset contents 
-print(dataset)
-
-count = 0
-# print dataset docs
+# docs
 for doc in dataset.docs_iter():
     print(doc)
-    count += 1
-    if count >= 1: 
-        break
+    break
 
 print("\n")
-        
-# print dataset queries
-count = 0
+
+# queries
 for query in dataset.queries_iter():
     print(query)
-    count += 1
-    if count > 5: 
-        break
+    break
 
 print("\n")
 
-# print dataset qrels
-count = 0
+# qrels
 for qrel in dataset.qrels_iter():
     print(qrel)
-    count += 1
-    if count > 5: 
-        break
+    break
 
-print("qrels done")
+
+class Embedder:
+    def __init__(self, preprocessor) -> None:
+        self.preprocessor = preprocessor
