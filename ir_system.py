@@ -23,6 +23,7 @@ class IR_System:
         self.qrels = qrels
 
 
+    # Returns the average of DCG for each query in the dataset
     def evaluate(self) -> float:
         total = 0
         done = 0
@@ -34,19 +35,21 @@ class IR_System:
         return total / done
 
     
+    # Discounted Cumulative Average for a query
     def dcg(self, query) -> float:
         scores = self.get_scores(query)
         res = 0
-        for i, (score, doc) in enumerate(scores):
+        for i, (_, doc) in enumerate(scores):
             relavence = self.qrels[query["query_id"]][doc["doc_id"]]["relevance"]
             res += (2**relavence  - 1) /  math.log(x=i + 2, base=2)
 
         return res
 
     
+    # Returns a list of (score, doc)
+    # score: cosine similarity of the doc and query
+    # doc: dict representation of a document
     def get_scores(self, query: dict) -> list[tuple[float, dict]]: 
-        # for each document, obtain the score with this query
-        # rank the scores in descending order
         scores = []
 
         for doc in self.docs:
@@ -57,7 +60,7 @@ class IR_System:
         return scores
 
 
-    # Returns cosine similarity between concatination of documents text and tile 
+    # Returns cosine similarity between concatination of document's text and tile 
     # and filtered query text
     def score(self, doc: dict, query: dict) -> float:
         doc_text = doc["title"] + doc["text"]
