@@ -1,8 +1,8 @@
 import sister
 import numpy as np
+from preprocessor import Preprocessor
 import gensim.downloader as api
 
-from preprocessor import Preprocessor
 
 class Embedder:
     def __init__(self, preprocessor) -> None:
@@ -17,7 +17,6 @@ class Embedder:
 
 class BertEmbedder(Embedder):
     def __init__(self, preprocessor):
-        print("in bert embedder")
         super().__init__(preprocessor)
         self.model = sister.BertEmbedding(lang='en')
 
@@ -32,8 +31,6 @@ class BertEmbedder(Embedder):
 
 class Word2VecEmbedder(Embedder):
     def __init__(self, preprocessor):
-        print("in w2v embedder")
-
         super().__init__(preprocessor)
         self.model = api.load('word2vec-google-news-300')
     

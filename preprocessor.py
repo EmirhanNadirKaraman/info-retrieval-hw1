@@ -1,3 +1,4 @@
+from collections import defaultdict
 import json
 import nltk
 import re
@@ -5,6 +6,8 @@ import sys
 
 import ir_datasets
 from nltk.corpus import stopwords
+
+from collections import defaultdict
 
 
 # Preprocesses the dataset and saves it in .json format to location.
@@ -36,24 +39,65 @@ class Preprocessor:
                 docs_file.write(json_str)
 
 
-    # Preprocesses title and text field in each document in the dataset and return
+    # Preprocesses title and text field in each document in the dataset and return
     # the result as a dictionary.
     def preprocess(self, dataset) -> dict:
-        res = {"docs": []}
+        res = {}
+
+        res["docs"] = self.preproc_docs(dataset)
+        res["queries"] = self.preproc_queries(dataset)
+        res["qrels"] = self.compile_qrels(dataset)
+        
+        return res
+    
+    
+    def preproc_docs(self, dataset) -> list[dict]:
+        res = {}
 
         for doc in dataset.docs_iter():
             new_doc = {}
-            
             new_doc["doc_id"] = doc.doc_id
             new_doc["title"] = self.filter(doc.title)
+            new_doc["raw_title"] = doc.title
             new_doc["text"] = self.filter(doc.text)
+            new_doc["raw_text"] = doc.text
             new_doc["author"] = doc.author
             new_doc["bib"] = doc.bib
 
-            res["docs"].append(new_doc)
+            res[doc.doc_id] = new_doc
+        
+        return res
+    
+    
+    def preproc_queries(self, dataset) -> list[dict]:
+        res = {}
+
+        for query in dataset.queries_iter():
+            new_query = {}
+            new_query["query_id"] = query.query_id
+            new_query["text"] = self.filter(query.text)
+            new_query["raw_text"] = query.text
+
+            res[query.query_id] = new_query
+            
+        return res
+
+
+    def compile_qrels(self, dataset) -> list[dict]:
+        res = defaultdict(dict)
+
+        for qrel in dataset.qrels_iter():
+            new_qrel = {}
+            new_qrel["query_id"] = qrel.query_id
+            new_qrel["doc_id"] = qrel.doc_id
+            new_qrel["relevance"] = qrel.relevance
+            new_qrel["iteration"] = qrel.iteration
+            
+            res[qrel.query_id][qrel.doc_id] = new_qrel
 
         return res
     
+
 
     # ! Requires these two to be executed previously: 
     #   - nltk.download('stopwords')
