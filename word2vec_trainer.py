@@ -13,15 +13,13 @@ def main():
 
 
 def build_sentences(dataset) -> list[list[str]]:
-    res = []
+    sentences = []
 
-    for doc in dataset["docs"]:
-        content = []
-        content += doc["title"].split()
-        content += doc["text"].split()
-        res.append(content)
+    for doc in dataset["docs"].values():
+        sentence = doc["title"].split() + doc["text"].split()
+        sentences.append(sentence)
 
-    return res
+    return sentences
 
 
 def load_json(path) -> dict:

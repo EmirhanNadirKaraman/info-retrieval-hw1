@@ -67,7 +67,7 @@ class Preprocessor:
             res[doc.doc_id] = new_doc
         
         return res
-    
+        
     
     def preproc_queries(self, dataset) -> list[dict]:
         res = {}
@@ -81,7 +81,7 @@ class Preprocessor:
             res[query.query_id] = new_query
             
         return res
-
+      
 
     def compile_qrels(self, dataset) -> list[dict]:
         res = defaultdict(dict)
@@ -96,30 +96,3 @@ class Preprocessor:
             res[qrel.query_id][qrel.doc_id] = new_qrel
 
         return res
-    
-
-
-    # ! Requires these two to be executed previously: 
-    #   - nltk.download('stopwords')
-    #   - nltk.download('punkt')
-    def filter(self, text: str) -> str:
-        # remove links, numbers and special characters
-        text = re.sub(r"http\S+", "", text)
-        text = re.sub("[^A-Za-z]+", " ", text)
-        
-        # remove stopwords
-        tokens = nltk.word_tokenize(text)
-        tokens = [w.lower().strip() for w in tokens if not w.lower() in stopwords.words("english")]
-
-        return "".join(token + " " for token in tokens)
-
-
-if __name__ == "__main__":
-    main()
-    """
-    nltk.download("stopwords")
-    nltk.download("punkt")
-    s = "hi my name is enis, i am 22 years old, my blog site: https://enis.com"
-    print(__filter(s)) # --> hi name enis years old blog site
-    """
-    sys.exit(0)
