@@ -6,7 +6,6 @@ import gensim.downloader as api
 
 class Embedder:
     def __init__(self, preprocessor) -> None:
-        print("in embedder")
         self.model = None
         self.preprocessor = preprocessor
 
@@ -49,6 +48,7 @@ class Word2VecEmbedder(Embedder):
 
 
 def main(): 
+    # this is the preprocessor object that will be used for both embedders
     preprocessor = Preprocessor()
 
     # word2vec model pretrained with Google News dataset
