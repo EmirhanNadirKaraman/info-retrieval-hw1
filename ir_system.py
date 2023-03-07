@@ -17,8 +17,8 @@ class IR_System:
         self.queries = queries
         self.qrels = qrels
 
-        # self.doc_vecs, self.doc_map = self.get_doc_vecs()
-        # self.query_vecs, self.query_map = self.get_query_vecs()
+        self.doc_vecs, self.doc_map = self.get_doc_vecs()
+        self.query_vecs, self.query_map = self.get_query_vecs()
 
 
     # Returns the average of DCG for each query in the dataset
@@ -28,10 +28,9 @@ class IR_System:
         done = 0
 
         for query_id, _ in self.qrels.items():
-            if query_id in self.queries:
-                query = self.queries.get(query_id, None)
-                total += self.dcg(query)
-                done += 1
+            query = self.queries.get(query_id, None)
+            total += self.dcg(query)
+            done += 1
 
 
         return total / done
@@ -57,7 +56,6 @@ class IR_System:
     # score: cosine similarity of the doc and query
     # doc: dict representation of a document
     def get_scores(self, query: dict) -> list[tuple[float, dict]]: 
-        print("in get scores, query_id: ", query['query_id'])
         scores = []
 
         for doc_id in self.docs:
@@ -70,8 +68,6 @@ class IR_System:
     
 
     def get_doc_vecs(self): 
-        print("getting doc vecs")
-
         doc_map = dict()
 
         doc_texts = [self.docs[doc_id]["title"] + self.docs[doc_id]["text"] for doc_id in self.docs]
@@ -80,17 +76,11 @@ class IR_System:
         for doc_id in self.docs:
             doc_map[doc_id] = counter
             counter += 1
-            if counter % 50 == 0: 
-                print(counter)
-
-        print(doc_texts[:3])
 
         return self.embedder.get_multiple_embeddings(doc_texts), doc_map
     
 
     def get_query_vecs(self):
-        print("getting query vecs")
-
         query_map = dict()
         query_texts = [self.queries[query_id]["text"] for query_id in self.queries]
 
@@ -105,15 +95,15 @@ class IR_System:
     # Returns cosine similarity between concatenation of document's text and title 
     # and filtered query text
     def score(self, doc: dict, query: dict) -> float:
-        """doc_vec = self.doc_vecs[self.doc_map[doc["doc_id"]]]
-        query_vec = self.query_vecs[self.query_map[query["query_id"]]]"""
+        if int(doc["doc_id"]) % 1000 == 0: 
+            print("in score, query_id: ", query['query_id'], doc['doc_id'])
 
+        doc_vec = self.doc_vecs[self.doc_map[doc["doc_id"]]]
+        query_vec = self.query_vecs[self.query_map[query["query_id"]]]
 
-        print("in score, query_id: ", query['query_id'], doc['doc_id'])
-
-        doc_text = doc["title"] + doc["text"]
+        """doc_text = doc["title"] + doc["text"]
         doc_vec = self.embedder.get_embedding(doc_text)
-        query_vec = self.embedder.get_embedding(query["text"])
+        query_vec = self.embedder.get_embedding(query["text"])"""
 
         cos_sim = np.dot(doc_vec, query_vec) / (norm(doc_vec)*norm(query_vec)) if np.any(doc_vec) else 0.0
 
@@ -125,19 +115,19 @@ docs = dataset["docs"]
 queries = dataset["queries"]
 qrels = dataset["qrels"]
 
-"""word2vec_embedder = Word2VecEmbedder()
+word2vec_embedder = Word2VecEmbedder()
 word2vec_system = IR_System(embedder=word2vec_embedder,
                             docs=docs,
                             queries=queries,
                             qrels=qrels)
 
 
-print("word2vec result:", word2vec_system.evaluate())"""
+print("word2vec result:", word2vec_system.evaluate())
 
 
-bert_embedder = BertEmbedder()
+"""bert_embedder = BertEmbedder()
 bert_system = IR_System(embedder=bert_embedder, 
                         docs=docs, 
                         queries=queries, 
                         qrels=qrels)
-print("bert result:", bert_system.evaluate())
+print("bert result:", bert_system.evaluate())"""
