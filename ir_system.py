@@ -1,15 +1,10 @@
 import math
 
-from numpy import dot
+import numpy as np
 from numpy.linalg import norm
 
-class Embedder:
-    def __init__(self) -> None:
-        pass
-
-    def get_embedding(sentence) -> float:
-        """override this method"""
-        pass
+from embedder import BertEmbedder, Embedder, Word2VecEmbedder
+from word2vec_trainer import load_json
 
 
 class IR_System:
@@ -22,51 +17,127 @@ class IR_System:
         self.queries = queries
         self.qrels = qrels
 
+        # self.doc_vecs, self.doc_map = self.get_doc_vecs()
+        # self.query_vecs, self.query_map = self.get_query_vecs()
+
 
     # Returns the average of DCG for each query in the dataset
     def evaluate(self) -> float:
+        print("evaluating")
         total = 0
         done = 0
-        for query_id, qrel in self.qrels.items():
-            query = self.queries[query_id]
-            total += self.dcg(query)
-            done += 1
+
+        for query_id, _ in self.qrels.items():
+            if query_id in self.queries:
+                query = self.queries.get(query_id, None)
+                total += self.dcg(query)
+                done += 1
+
 
         return total / done
-
     
+
     # Discounted Cumulative Average for a query
     def dcg(self, query) -> float:
+        if not query: 
+            return 0.0
+        
         scores = self.get_scores(query)
         res = 0
         for i, (_, doc) in enumerate(scores):
-            relavence = self.qrels[query["query_id"]][doc["doc_id"]]["relevance"]
-            res += (2**relavence  - 1) /  math.log(x=i + 2, base=2)
+            relevance = self.qrels[query["query_id"]].get(doc["doc_id"], {}).get("relevance", 0)
+            res += (2**relevance  - 1) /  math.log(i + 2, 2)
 
         return res
+    
+    
 
     
     # Returns a list of (score, doc)
     # score: cosine similarity of the doc and query
     # doc: dict representation of a document
     def get_scores(self, query: dict) -> list[tuple[float, dict]]: 
+        print("in get scores, query_id: ", query['query_id'])
         scores = []
 
-        for doc in self.docs:
+        for doc_id in self.docs:
+            doc = self.docs[doc_id]
             score = self.score(doc, query)
-            scores.append(tuple(score, doc))
+            scores.append((score, doc))
 
         scores.sort(key=lambda x: x[0], reverse=True)
         return scores
+    
+
+    def get_doc_vecs(self): 
+        print("getting doc vecs")
+
+        doc_map = dict()
+
+        doc_texts = [self.docs[doc_id]["title"] + self.docs[doc_id]["text"] for doc_id in self.docs]
+
+        counter = 0
+        for doc_id in self.docs:
+            doc_map[doc_id] = counter
+            counter += 1
+            if counter % 50 == 0: 
+                print(counter)
+
+        print(doc_texts[:3])
+
+        return self.embedder.get_multiple_embeddings(doc_texts), doc_map
+    
+
+    def get_query_vecs(self):
+        print("getting query vecs")
+
+        query_map = dict()
+        query_texts = [self.queries[query_id]["text"] for query_id in self.queries]
+
+        counter = 0
+        for query_id in self.queries:
+            query_map[query_id] = counter
+            counter += 1
+
+        return self.embedder.get_multiple_embeddings(query_texts), query_map
 
 
-    # Returns cosine similarity between concatination of document's text and tile 
+    # Returns cosine similarity between concatenation of document's text and title 
     # and filtered query text
     def score(self, doc: dict, query: dict) -> float:
-        doc_text = doc["title"] + doc["text"]
+        """doc_vec = self.doc_vecs[self.doc_map[doc["doc_id"]]]
+        query_vec = self.query_vecs[self.query_map[query["query_id"]]]"""
 
+
+        print("in score, query_id: ", query['query_id'], doc['doc_id'])
+
+        doc_text = doc["title"] + doc["text"]
         doc_vec = self.embedder.get_embedding(doc_text)
         query_vec = self.embedder.get_embedding(query["text"])
-        
-        cos_sim = dot(doc_vec, query_vec) / (norm(doc_vec)*norm(query_vec))
+
+        cos_sim = np.dot(doc_vec, query_vec) / (norm(doc_vec)*norm(query_vec)) if np.any(doc_vec) else 0.0
+
         return cos_sim
+
+
+dataset = load_json("./resources/cranfield_preprocessed.json")
+docs = dataset["docs"]
+queries = dataset["queries"]
+qrels = dataset["qrels"]
+
+"""word2vec_embedder = Word2VecEmbedder()
+word2vec_system = IR_System(embedder=word2vec_embedder,
+                            docs=docs,
+                            queries=queries,
+                            qrels=qrels)
+
+
+print("word2vec result:", word2vec_system.evaluate())"""
+
+
+bert_embedder = BertEmbedder()
+bert_system = IR_System(embedder=bert_embedder, 
+                        docs=docs, 
+                        queries=queries, 
+                        qrels=qrels)
+print("bert result:", bert_system.evaluate())
