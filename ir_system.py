@@ -3,7 +3,7 @@ import math
 import numpy as np
 from numpy.linalg import norm
 
-from embedder import BertEmbedder, Embedder, Word2VecEmbedder
+from embedder import BertEmbedder, Embedder, TrainedWord2VecEmbedder, Word2VecEmbedder
 from word2vec_trainer import load_json
 
 
@@ -50,8 +50,6 @@ class IR_System:
         return res
     
     
-
-    
     # Returns a list of (score, doc)
     # score: cosine similarity of the doc and query
     # doc: dict representation of a document
@@ -96,7 +94,8 @@ class IR_System:
     # and filtered query text
     def score(self, doc: dict, query: dict) -> float:
         if int(doc["doc_id"]) % 1000 == 0: 
-            print("in score, query_id: ", query['query_id'], doc['doc_id'])
+            # print("in score, query_id: ", query['query_id'], doc['doc_id'])
+            pass
 
         doc_vec = self.doc_vecs[self.doc_map[doc["doc_id"]]]
         query_vec = self.query_vecs[self.query_map[query["query_id"]]]
@@ -123,6 +122,14 @@ word2vec_system = IR_System(embedder=word2vec_embedder,
 
 
 print("word2vec result:", word2vec_system.evaluate())
+
+trained_w2v_embedder = TrainedWord2VecEmbedder()
+trained_w2v_system = IR_System(embedder=trained_w2v_embedder,
+                               docs=docs,
+                               queries=queries,
+                               qrels=qrels)
+
+print("trained word2vec result:", trained_w2v_system.evaluate())
 
 
 """bert_embedder = BertEmbedder()

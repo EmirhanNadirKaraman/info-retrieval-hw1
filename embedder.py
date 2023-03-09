@@ -2,6 +2,8 @@ import sister
 import numpy as np
 import gensim.downloader as api
 
+from gensim.models import Word2Vec
+
 
 class Embedder:
     def __init__(self) -> None:
@@ -14,6 +16,8 @@ class Embedder:
     def get_multiple_embeddings(self, sentences):
         """override this method"""
         pass
+
+
 
 
 class BertEmbedder(Embedder):
@@ -47,6 +51,30 @@ class Word2VecEmbedder(Embedder):
     
     def get_multiple_embeddings(self, sentences: list[str]):
         return np.array([self.get_embedding(sentence) for sentence in sentences])
+    
+
+class TrainedWord2VecEmbedder(Embedder):
+    def __init__(self):
+        self.model = Word2Vec.load("./resources/word2vec.model").wv
+
+    
+    def get_embedding(self, sentence): 
+        # word2vec embedding of each word, combined in a 2d list
+
+        # if sentence is empty, return a vector of zeros
+        if sentence.split() == []:
+            return np.zeros(100)
+        
+        result = np.array([self.model[w] if w in self.model else np.zeros(100) for w in sentence.split()])
+
+        # the mean value for each index in vectors
+        mean = np.mean(result, axis=0)
+
+        return mean.flatten()
+    
+
+    def get_multiple_embeddings(self, sentences: list[str]):
+        return np.array([self.get_embedding(sentence) for sentence in sentences])
 
 
 
@@ -56,8 +84,17 @@ sentences = ["I don't know what my name or my purpose on this Earth is",
 """embedder = Word2VecEmbedder()
 word2vec = embedder.get_multiple_embeddings(sentences)
 
-print(word2vec.shape)
+print(word2vec)
+print('*' * 100)
 
+trained_embedder = TrainedWord2VecEmbedder()
+trained_word2vec = trained_embedder.get_multiple_embeddings(sentences)
+
+
+print(word2vec.shape, trained_word2vec.shape)"""
+
+
+"""
 bert_embedder = BertEmbedder()
 bert = bert_embedder.get_multiple_embeddings(sentences)
 print("shapes: ", bert.shape, word2vec.shape)"""
