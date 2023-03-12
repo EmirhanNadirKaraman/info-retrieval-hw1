@@ -12,7 +12,7 @@ def main():
     model.save("./resources/word2vec.model")
 
 
-def build_sentences(dataset) -> list[list[str]]:
+def build_sentences(dataset):
     sentences = []
 
     for doc in dataset["docs"].values():

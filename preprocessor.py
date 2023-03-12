@@ -40,7 +40,7 @@ def preprocess(dataset) -> dict:
     
     return res
 
-def preproc_docs(dataset) -> list[dict]:
+def preproc_docs(dataset):
     res = {}
 
     for doc in dataset.docs_iter():
@@ -55,9 +55,11 @@ def preproc_docs(dataset) -> list[dict]:
 
         res[doc.doc_id] = new_doc
     
-    return res
+    sorted_res = dict(sorted(res.items(), key=lambda item: int(item[0])))
+    return sorted_res
 
-def preproc_queries(dataset) -> list[dict]:
+
+def preproc_queries(dataset):
     res = {}
 
     for query in dataset.queries_iter():
@@ -67,11 +69,13 @@ def preproc_queries(dataset) -> list[dict]:
         new_query["raw_text"] = query.text
 
         res[query.query_id] = new_query
+
+    sorted_res = dict(sorted(res.items(), key=lambda item: int(item[0])))
         
-    return res
+    return sorted_res
 
 
-def compile_qrels(dataset) -> list[dict]:
+def compile_qrels(dataset):
     res = defaultdict(dict)
 
     for qrel in dataset.qrels_iter():

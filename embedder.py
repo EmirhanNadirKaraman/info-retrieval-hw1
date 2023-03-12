@@ -2,6 +2,8 @@ import sister
 import numpy as np
 import gensim.downloader as api
 
+from gensim.models import Word2Vec
+
 
 class Embedder:
     def __init__(self) -> None:
@@ -11,15 +13,21 @@ class Embedder:
         """override this method"""
         pass
 
+    def get_multiple_embeddings(self, sentences):
+        """override this method"""
+        pass
+
+
+
 
 class BertEmbedder(Embedder):
     def __init__(self):
         self.model = sister.BertEmbedding(lang='en')
 
     def get_embedding(self, sentence):
-        return self.model.embed(sentences=[sentence])
+        return self.model.embed(sentences=[sentence]).flatten()
     
-    def get_multiple_embeddings(self, sentences: list[str]):
+    def get_multiple_embeddings(self, sentences):
         return self.model.embed(sentences=sentences)
 
 
@@ -29,9 +37,71 @@ class Word2VecEmbedder(Embedder):
     
     def get_embedding(self, sentence):
         # word2vec embedding of each word, combined in a 2d list
+
+        # if sentence is empty, return a vector of zeros
+        if sentence.split() == []:
+            return np.zeros(300)
+        
         result = np.array([self.model[w] for w in sentence.split() if w in self.model])
 
         # the mean value for each index in vectors
         mean = np.mean(result, axis=0)
 
-        return mean.reshape(1, -1)
+        return mean.flatten()
+    
+    def get_multiple_embeddings(self, sentences):
+        return np.array([self.get_embedding(sentence) for sentence in sentences])
+    
+
+class TrainedWord2VecEmbedder(Embedder):
+    def __init__(self):
+        self.model = Word2Vec.load("./resources/word2vec.model").wv
+
+    
+    def get_embedding(self, sentence): 
+        # word2vec embedding of each word, combined in a 2d list
+
+        # if sentence is empty, return a vector of zeros
+        if sentence.split() == []:
+            return np.zeros(100)
+        
+        result = np.array([self.model[w] if w in self.model else np.zeros(100) for w in sentence.split()])
+
+        # the mean value for each index in vectors
+        mean = np.mean(result, axis=0)
+
+        return mean.flatten()
+    
+
+    def get_multiple_embeddings(self, sentences):
+        return np.array([self.get_embedding(sentence) for sentence in sentences])
+
+
+class GloveEmbedder(Embedder):
+    def __init__(self):
+        self.model = dict()
+        with open('./resources/glove.txt') as f:
+            lines = f.readlines()
+
+            for index, line in enumerate(lines): 
+                line = line.split()
+                self.model[line[0]] = np.array([float(str_) for str_ in line[1:]])
+
+
+    def get_embedding(self, sentence): 
+        # glove embedding of each word, combined in a 2d list
+
+        # if sentence is empty, return a vector of zeros
+        if sentence.split() == []:
+            return np.zeros(50)
+
+        result = np.array([self.model[w] if w in self.model else np.zeros(50) for w in sentence.split()])
+
+        # the mean value for each index in vectors
+        mean = np.mean(result, axis=0)
+
+        return mean.flatten()
+
+
+    def get_multiple_embeddings(self, sentences):
+        return np.array([self.get_embedding(sentence) for sentence in sentences])
