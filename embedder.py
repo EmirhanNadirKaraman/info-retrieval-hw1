@@ -76,3 +76,32 @@ class TrainedWord2VecEmbedder(Embedder):
     def get_multiple_embeddings(self, sentences):
         return np.array([self.get_embedding(sentence) for sentence in sentences])
 
+
+class GloveEmbedder(Embedder):
+    def __init__(self):
+        self.model = dict()
+        with open('./resources/glove.txt') as f:
+            lines = f.readlines()
+
+            for index, line in enumerate(lines): 
+                line = line.split()
+                self.model[line[0]] = np.array([float(str_) for str_ in line[1:]])
+
+
+    def get_embedding(self, sentence): 
+        # glove embedding of each word, combined in a 2d list
+
+        # if sentence is empty, return a vector of zeros
+        if sentence.split() == []:
+            return np.zeros(50)
+
+        result = np.array([self.model[w] if w in self.model else np.zeros(50) for w in sentence.split()])
+
+        # the mean value for each index in vectors
+        mean = np.mean(result, axis=0)
+
+        return mean.flatten()
+
+
+    def get_multiple_embeddings(self, sentences):
+        return np.array([self.get_embedding(sentence) for sentence in sentences])

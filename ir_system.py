@@ -3,8 +3,7 @@ import math
 import numpy as np
 from numpy.linalg import norm
 
-from embedder import BertEmbedder, Embedder, TrainedWord2VecEmbedder, Word2VecEmbedder
-from word2vec_trainer import load_json
+from embedder import Embedder
 
 
 class IR_System:
@@ -23,7 +22,6 @@ class IR_System:
 
     # Returns the average of DCG for each query in the dataset
     def evaluate(self) -> float:
-        print("evaluating")
         total = 0
         done = 0
 
@@ -83,8 +81,6 @@ class IR_System:
 
         return np.array(res), doc_map
     
-        # return self.embedder.get_multiple_embeddings(doc_texts), doc_map
-    
 
     def get_query_vecs(self):
         query_map = dict()
@@ -102,17 +98,13 @@ class IR_System:
             res.append(self.embedder.get_embedding(query_text))
 
         return np.array(res), query_map
-    
-        # return self.embedder.get_multiple_embeddings(query_texts), query_map
 
 
     # Returns cosine similarity between concatenation of document's text and title 
     # and filtered query text
     def score(self, doc: dict, query: dict) -> float:
-        if int(doc["doc_id"]) % 1000 == 0: 
-            # print("in score, query_id: ", query['query_id'], doc['doc_id'])
-            pass
-
+        # This is to prevent calculation of the same thing multiple times. 
+        # The values are retrieved from the precalculated dicts. 
         doc_vec = self.doc_vecs[self.doc_map[doc["doc_id"]]]
         query_vec = self.query_vecs[self.query_map[query["query_id"]]]
 
@@ -121,36 +113,6 @@ class IR_System:
         query_vec = self.embedder.get_embedding(query["text"])"""
 
         cos_sim = np.dot(doc_vec, query_vec) / (norm(doc_vec)*norm(query_vec)) if np.any(doc_vec) else 0.0
-
+        
+        
         return cos_sim
-
-
-dataset = load_json("./resources/cranfield_preprocessed.json")
-# dataset = load_json("/content/drive/MyDrive/resources/cranfield_preprocessed.json")
-docs = dataset["docs"]
-queries = dataset["queries"]
-qrels = dataset["qrels"]
-
-word2vec_embedder = Word2VecEmbedder()
-word2vec_system = IR_System(embedder=word2vec_embedder,
-                            docs=docs,
-                            queries=queries,
-                            qrels=qrels)
-
-
-print("word2vec result:", word2vec_system.evaluate())
-
-trained_w2v_embedder = TrainedWord2VecEmbedder()
-trained_w2v_system = IR_System(embedder=trained_w2v_embedder,
-                               docs=docs,
-                               queries=queries,
-                               qrels=qrels)
-print("trained word2vec result:", trained_w2v_system.evaluate())
-
-
-bert_embedder = BertEmbedder()
-bert_system = IR_System(embedder=bert_embedder, 
-                        docs=docs, 
-                        queries=queries, 
-                        qrels=qrels)
-print("bert result:", bert_system.evaluate())

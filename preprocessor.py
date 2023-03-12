@@ -12,8 +12,7 @@ from nltk.corpus import stopwords
 # Running this script once is enough to generate preprocessed dataset.
 def main() -> None:
     dataset = ir_datasets.load("cranfield")
-    # location = "./resources/cranfield_preprocessed.json"
-    location = "/content/drive/MyDrive/resources/cranfield_preprocessed.json"
+    location = "./resources/cranfield_preprocessed.json"
 
     try: 
         with open(location, "r") as docs_file:
