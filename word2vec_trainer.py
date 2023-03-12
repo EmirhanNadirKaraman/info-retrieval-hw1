@@ -5,8 +5,6 @@ from gensim.models import Word2Vec
 
 
 def main():
-    # changed paths because google drive does not support relative paths
-
     dataset = load_json("./resources/cranfield_preprocessed.json")
     sentences = build_sentences(dataset)
     
