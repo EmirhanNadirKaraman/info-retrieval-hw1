@@ -5,14 +5,18 @@ from gensim.models import Word2Vec
 
 
 def main():
+    # changed paths because google drive does not support relative paths
+
     dataset = load_json("./resources/cranfield_preprocessed.json")
+    # dataset = load_json("/content/drive/MyDrive/resources/cranfield_preprocessed.json")
     sentences = build_sentences(dataset)
     
     model = Word2Vec(sentences=sentences)
     model.save("./resources/word2vec.model")
+    # model.save("/content/drive/MyDrive/resources/word2vec.model")
 
 
-def build_sentences(dataset) -> list[list[str]]:
+def build_sentences(dataset):
     sentences = []
 
     for doc in dataset["docs"].values():

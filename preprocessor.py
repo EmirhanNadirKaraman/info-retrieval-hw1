@@ -12,7 +12,8 @@ from nltk.corpus import stopwords
 # Running this script once is enough to generate preprocessed dataset.
 def main() -> None:
     dataset = ir_datasets.load("cranfield")
-    location = "./resources/cranfield_preprocessed.json"
+    # location = "./resources/cranfield_preprocessed.json"
+    location = "/content/drive/MyDrive/resources/cranfield_preprocessed.json"
 
     try: 
         with open(location, "r") as docs_file:
@@ -40,7 +41,7 @@ def preprocess(dataset) -> dict:
     
     return res
 
-def preproc_docs(dataset) -> list[dict]:
+def preproc_docs(dataset):
     res = {}
 
     for doc in dataset.docs_iter():
@@ -59,7 +60,7 @@ def preproc_docs(dataset) -> list[dict]:
     return sorted_res
 
 
-def preproc_queries(dataset) -> list[dict]:
+def preproc_queries(dataset):
     res = {}
 
     for query in dataset.queries_iter():
@@ -75,7 +76,7 @@ def preproc_queries(dataset) -> list[dict]:
     return sorted_res
 
 
-def compile_qrels(dataset) -> list[dict]:
+def compile_qrels(dataset):
     res = defaultdict(dict)
 
     for qrel in dataset.qrels_iter():

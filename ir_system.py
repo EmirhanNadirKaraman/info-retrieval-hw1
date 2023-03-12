@@ -9,8 +9,8 @@ from word2vec_trainer import load_json
 
 class IR_System:
     def __init__(
-        self, embedder: Embedder, docs: list[dict],
-        queries: list[dict], qrels: list[dict]
+        self, embedder: Embedder, docs,
+        queries, qrels
     ) -> None:
         self.embedder = embedder
         self.docs = docs
@@ -53,7 +53,7 @@ class IR_System:
     # Returns a list of (score, doc)
     # score: cosine similarity of the doc and query
     # doc: dict representation of a document
-    def get_scores(self, query: dict) -> list[tuple[float, dict]]: 
+    def get_scores(self, query: dict): 
         scores = []
 
         for doc_id in self.docs:
@@ -74,8 +74,16 @@ class IR_System:
         for doc_id in self.docs:
             doc_map[doc_id] = counter
             counter += 1
+        
+        res = []
+        for index, doc_text in enumerate(doc_texts):
+            if index % 20 == 0:
+                print(f"doc {index}")
+            res.append(self.embedder.get_embedding(doc_text))
 
-        return self.embedder.get_multiple_embeddings(doc_texts), doc_map
+        return np.array(res), doc_map
+    
+        # return self.embedder.get_multiple_embeddings(doc_texts), doc_map
     
 
     def get_query_vecs(self):
@@ -87,7 +95,15 @@ class IR_System:
             query_map[query_id] = counter
             counter += 1
 
-        return self.embedder.get_multiple_embeddings(query_texts), query_map
+        res = []
+        for index, query_text in enumerate(query_texts):
+            if index % 20 == 0:
+                print(f"query {index}")
+            res.append(self.embedder.get_embedding(query_text))
+
+        return np.array(res), query_map
+    
+        # return self.embedder.get_multiple_embeddings(query_texts), query_map
 
 
     # Returns cosine similarity between concatenation of document's text and title 
@@ -110,6 +126,7 @@ class IR_System:
 
 
 dataset = load_json("./resources/cranfield_preprocessed.json")
+# dataset = load_json("/content/drive/MyDrive/resources/cranfield_preprocessed.json")
 docs = dataset["docs"]
 queries = dataset["queries"]
 qrels = dataset["qrels"]
@@ -128,13 +145,12 @@ trained_w2v_system = IR_System(embedder=trained_w2v_embedder,
                                docs=docs,
                                queries=queries,
                                qrels=qrels)
-
 print("trained word2vec result:", trained_w2v_system.evaluate())
 
 
-"""bert_embedder = BertEmbedder()
+bert_embedder = BertEmbedder()
 bert_system = IR_System(embedder=bert_embedder, 
                         docs=docs, 
                         queries=queries, 
                         qrels=qrels)
-print("bert result:", bert_system.evaluate())"""
+print("bert result:", bert_system.evaluate())

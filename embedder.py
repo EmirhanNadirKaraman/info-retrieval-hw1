@@ -27,7 +27,7 @@ class BertEmbedder(Embedder):
     def get_embedding(self, sentence):
         return self.model.embed(sentences=[sentence]).flatten()
     
-    def get_multiple_embeddings(self, sentences: list[str]):
+    def get_multiple_embeddings(self, sentences):
         return self.model.embed(sentences=sentences)
 
 
@@ -49,7 +49,7 @@ class Word2VecEmbedder(Embedder):
 
         return mean.flatten()
     
-    def get_multiple_embeddings(self, sentences: list[str]):
+    def get_multiple_embeddings(self, sentences):
         return np.array([self.get_embedding(sentence) for sentence in sentences])
     
 
@@ -73,29 +73,6 @@ class TrainedWord2VecEmbedder(Embedder):
         return mean.flatten()
     
 
-    def get_multiple_embeddings(self, sentences: list[str]):
+    def get_multiple_embeddings(self, sentences):
         return np.array([self.get_embedding(sentence) for sentence in sentences])
-
-
-
-sentences = ["I don't know what my name or my purpose on this Earth is", 
-             "But you sure as hell know what you're doing"]
-
-"""embedder = Word2VecEmbedder()
-word2vec = embedder.get_multiple_embeddings(sentences)
-
-print(word2vec)
-print('*' * 100)
-
-trained_embedder = TrainedWord2VecEmbedder()
-trained_word2vec = trained_embedder.get_multiple_embeddings(sentences)
-
-
-print(word2vec.shape, trained_word2vec.shape)"""
-
-
-"""
-bert_embedder = BertEmbedder()
-bert = bert_embedder.get_multiple_embeddings(sentences)
-print("shapes: ", bert.shape, word2vec.shape)"""
 
