@@ -3,7 +3,7 @@ import math
 import numpy as np
 from numpy.linalg import norm
 
-from embedder import Embedder
+from embedder import BertEmbedder, Embedder
 
 
 class IR_System:
@@ -18,7 +18,7 @@ class IR_System:
 
         self.doc_vecs, self.doc_map = self.get_doc_vecs()
         self.query_vecs, self.query_map = self.get_query_vecs()
-
+            
 
     # Returns the average of DCG for each query in the dataset
     def evaluate(self) -> float:
@@ -74,8 +74,13 @@ class IR_System:
         
         res = []
         for index, doc_text in enumerate(doc_texts):
-            if index % 20 == 0:
-                print(f"doc {index}")
+            # if self.embedder is a BertEmbedder instance
+            # we need to show progress because it takes a long time
+            if isinstance(self.embedder, BertEmbedder):
+                len_doc_texts = len(doc_texts)
+                if index % 20 == 0:
+                    print(f"doc {index / len_doc_texts * 100:.2f}%")
+
             res.append(self.embedder.get_embedding(doc_text))
 
         return np.array(res), doc_map
@@ -92,8 +97,12 @@ class IR_System:
 
         res = []
         for index, query_text in enumerate(query_texts):
-            if index % 20 == 0:
-                print(f"query {index}")
+            len_query_texts = len(query_texts)
+
+            if isinstance(self.embedder, BertEmbedder):
+                if index % 20 == 0:
+                    print(f"query {index / len_query_texts * 100:.2f}%")
+
             res.append(self.embedder.get_embedding(query_text))
 
         return np.array(res), query_map

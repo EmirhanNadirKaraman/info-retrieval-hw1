@@ -1,9 +1,10 @@
+import os
 import sister
 import numpy as np
 import gensim.downloader as api
 
 from gensim.models import Word2Vec
-
+import word2vec_trainer
 
 class Embedder:
     def __init__(self) -> None:
@@ -55,6 +56,11 @@ class Word2VecEmbedder(Embedder):
 
 class TrainedWord2VecEmbedder(Embedder):
     def __init__(self):
+        if not os.path.exists("./resources/word2vec.model"):
+            print("Training word2vec model...")
+            word2vec_trainer.main()
+            print("Training Done.")
+
         self.model = Word2Vec.load("./resources/word2vec.model").wv
 
     
@@ -80,7 +86,7 @@ class TrainedWord2VecEmbedder(Embedder):
 class GloveEmbedder(Embedder):
     def __init__(self):
         self.model = dict()
-        with open('./resources/glove.txt') as f:
+        with open('./glove/vectors.txt') as f:
             lines = f.readlines()
 
             for index, line in enumerate(lines): 
