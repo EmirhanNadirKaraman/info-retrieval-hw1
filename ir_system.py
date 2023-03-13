@@ -30,7 +30,6 @@ class IR_System:
             total += self.dcg(query)
             done += 1
 
-
         return total / done
     
 
@@ -113,6 +112,5 @@ class IR_System:
         query_vec = self.embedder.get_embedding(query["text"])"""
 
         cos_sim = np.dot(doc_vec, query_vec) / (norm(doc_vec)*norm(query_vec)) if np.any(doc_vec) else 0.0
-        
         
         return cos_sim

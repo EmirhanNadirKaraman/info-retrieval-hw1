@@ -102,7 +102,8 @@ def __filter(text: str) -> str:
     tokens = nltk.word_tokenize(text)
     tokens = [w.lower().strip() for w in tokens if not w.lower() in stopwords.words("english")]
 
-    return "".join(token + " " for token in tokens)
+    # return "".join(token + " " for token in tokens)
+    return " ".join(tokens)
 
 
 if __name__ == "__main__":
