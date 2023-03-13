@@ -1,5 +1,6 @@
 from collections import defaultdict
 import json
+import os
 import nltk
 import re
 import sys
@@ -13,6 +14,9 @@ from nltk.corpus import stopwords
 def main() -> None:
     dataset = ir_datasets.load("cranfield")
     location = "./resources/cranfield_preprocessed.json"
+
+    if not os.path.exists("./resources"):
+            os.mkdir("./resources")
 
     try: 
         with open(location, "r") as docs_file:
